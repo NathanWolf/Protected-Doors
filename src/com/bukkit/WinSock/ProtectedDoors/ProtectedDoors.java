@@ -1,6 +1,7 @@
 package com.bukkit.WinSock.ProtectedDoors;
 
 import java.io.File;
+import java.util.logging.Logger;
 import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Scanner;
@@ -23,7 +24,8 @@ public class ProtectedDoors extends JavaPlugin {
     private final DoorBlockListener blockListener = new DoorBlockListener(this);
     private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
     private PluginDescriptionFile pdfFile = this.getDescription();
-
+    public static Logger log;
+    
     public ProtectedDoors(PluginLoader pluginLoader, Server instance,
             PluginDescriptionFile desc, File folder, File plugin,
             ClassLoader cLoader) {
@@ -37,15 +39,16 @@ public class ProtectedDoors extends JavaPlugin {
 
     public void onEnable() {
         // TODO: Place any custom enable code here including the registration of any events
-
+    	
+    	log = Logger.getLogger("Minecraft");
+    	
         // Register our events
         PluginManager pm = getServer().getPluginManager();
         pm.registerEvent(Event.Type.BLOCK_INTERACT, blockListener, Priority.Highest, this);
-        pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.BLOCK_DAMAGED, blockListener, Priority.Highest, this);
 
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
-        System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
+        log.info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
     }
     public void onDisable() {
         // TODO: Place any custom disable code here
@@ -53,7 +56,7 @@ public class ProtectedDoors extends JavaPlugin {
         // NOTE: All registered events are automatically unregistered when a plugin is disabled
 
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
-    	System.out.println( pdfFile.getName() + " version " + pdfFile.getVersion() + " is disabled!" );
+    	log.info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is disabled!" );
     }
     public ArrayList<String> readOP()
     {
