@@ -3,7 +3,9 @@ package com.bukkit.WinSock.ProtectedDoors;
 import org.bukkit.entity.*;
 import org.bukkit.World;
 import org.bukkit.block.*;
+import org.bukkit.block.Sign;
 import org.bukkit.Material;
+import org.bukkit.material.MaterialData;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockInteractEvent;
 import org.bukkit.event.block.BlockDamageEvent;
@@ -28,43 +30,16 @@ public class DoorBlockListener extends BlockListener {
     	{
     		Boolean canKill = false;
     		Block blockBlock = event.getBlock();
-    		BlockState blockState = blockBlock.getState();
-			if (blockState instanceof Sign)
+			if (blockBlock.getType() == Material.WOODEN_DOOR)
 			{
-				Sign sign = (Sign)blockState;
-				if (sign.getLine(0).contains("ProtectedDoor"))
-				{
-					for (int i = 0; i < sign.getLines().length; i++)
-					{
-						// Loop though the lines
-						if (sign.getLine(i).contains(event.getPlayer().getDisplayName()))
-						{
-							// Player on one of the lines allow kill
-							canKill = true;
-						}
-						else
-						{
-							canKill = false;
-						}
-						// TODO group control when bukkit suports groups
-					}
-				}
-				else
-				{
-					// Not a Protected Sign
-					canKill = true;
-				}
-			}
-			else if (blockState.getType() == Material.WOODEN_DOOR)
-			{
-				World blockWorld = blockState.getWorld();
-				Block aboveBlock = blockWorld.getBlockAt(blockState.getX(), 
-						blockState.getY() + 1, blockState.getZ());
+				World blockWorld = blockBlock.getWorld();
+				Block aboveBlock = blockWorld.getBlockAt(blockBlock.getX(), 
+						blockBlock.getY() + 1, blockBlock.getZ());
 				// For when someone clicks the bottom of the door
-				if (aboveBlock.getType() == blockState.getType())
+				if (aboveBlock.getType() == blockBlock.getType())
 				{
-					aboveBlock = blockWorld.getBlockAt(blockState.getX(), 
-							blockState.getY() + 2, blockState.getZ());
+					aboveBlock = blockWorld.getBlockAt(blockBlock.getX(), 
+							blockBlock.getY() + 2, blockBlock.getZ());
 				}
 			
 				// Cannot not find a better way of doing this
@@ -87,7 +62,8 @@ public class DoorBlockListener extends BlockListener {
 				}
 			
 				BlockState signState = signBlock.getState();
-				if (signState instanceof Sign)
+				MaterialData signData = signState.getData();
+				if (signData instanceof org.bukkit.material.Sign)
 				{
 					Sign sign = (Sign)signState;
 					if (sign.getLine(0).contains("ProtectedDoor"))
@@ -114,66 +90,6 @@ public class DoorBlockListener extends BlockListener {
 					canKill = true;
 				}
 			}
-			else
-			{
-				// Block destroyed check if its holding the sign or the door
-				World blockWorld = blockState.getWorld();
-				Block aboveBlock = blockWorld.getBlockAt(blockState.getX(), 
-						blockState.getY() + 1, blockState.getZ());
-				// For when someone clicks the bottom of the door
-				if (aboveBlock.getType() == blockState.getType())
-				{
-					aboveBlock = blockWorld.getBlockAt(blockState.getX(), 
-							blockState.getY() + 2, blockState.getZ());
-				}
-			
-				// Cannot not find a better way of doing this
-				Block signBlock = blockWorld.getBlockAt(aboveBlock.getX() + 1, 
-						aboveBlock.getY(), aboveBlock.getZ());
-				if (signBlock.getType() != Material.WALL_SIGN)
-    			{
-    				signBlock = blockWorld.getBlockAt(aboveBlock.getX() - 1, 
-    						aboveBlock.getY(), aboveBlock.getZ());
-				}
-				if (signBlock.getType() != Material.WALL_SIGN)
-				{
-					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-							aboveBlock.getY(), aboveBlock.getZ() + 1);
-				}
-				if (signBlock.getType() != Material.WALL_SIGN)
-				{
-					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-							aboveBlock.getY(), aboveBlock.getZ() - 1);
-				}
-			
-				BlockState signState = signBlock.getState();
-				if (signState instanceof Sign)
-				{
-					Sign sign = (Sign)signState;
-					if (sign.getLine(0).contains("ProtectedDoor"))
-					{
-						for (int i = 0; i < sign.getLines().length; i++)
-						{
-						// Loop though the lines
-							if (sign.getLine(i).contains(event.getPlayer().getDisplayName()))
-							{
-								// Player on one of the lines allow access
-								canKill = true;
-							}
-							else
-							{
-								canKill = false;
-							}
-							// TODO group control when bukkit suports groups
-						}
-					}
-				}
-				else
-				{
-					// Not a sign on the block
-					canKill = true;
-				}
-			}
 			if (!canKill)
 			{
 				event.setCancelled(true);
@@ -192,7 +108,7 @@ public class DoorBlockListener extends BlockListener {
     		player = (Player)trigger;
     		if (!plugin.readOP().contains(player.getDisplayName()))
     		{
-    			if (clickedBlock.getType() == Material.IRON_DOOR || clickedBlock.getType() == Material.WOODEN_DOOR)
+    			if (clickedBlock.getType() == Material.WOODEN_DOOR)
     			{
     				Boolean canOpen = false;
     				World blockWorld = clickedBlock.getWorld();
@@ -226,7 +142,9 @@ public class DoorBlockListener extends BlockListener {
     				}
     		
     				BlockState signState = signBlock.getState();
-    				if (signState instanceof Sign)
+    				MaterialData signData = signState.getData();
+    				System.out.println(signData.getItemType().name());
+    				if (signData instanceof org.bukkit.material.Sign)
     				{
     					Sign sign = (Sign)signState;
     					if (sign.getLine(0).contains("ProtectedDoor"))
@@ -256,7 +174,7 @@ public class DoorBlockListener extends BlockListener {
     				if (!canOpen)
     				{
     					// Person cannot open the door and cancel the event
-    				event.setCancelled(true);
+    					event.setCancelled(true);
     				}
     			}
     		}
