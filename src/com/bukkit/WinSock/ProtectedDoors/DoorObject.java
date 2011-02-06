@@ -2,18 +2,17 @@ package com.bukkit.WinSock.ProtectedDoors;
 
 import java.util.List;
 import com.elmakers.mine.bukkit.plugins.persistence.annotation.*;
-import com.bukkit.WinSock.ProtectedDoors.DoorLocation;
 
 @PersistClass(name = "DoorObject", schema = "ProtectedDoors")
 public class DoorObject {
 	
-	public void setLocation(DoorLocation loc)
+	public void setLocation(String loc)
 	{
 		this.loc = loc;
 	}
 	
 	@Persist(id=true)
-	public DoorLocation getLocation()
+	public String getLocation()
 	{
 		return loc;
 	}
@@ -40,7 +39,7 @@ public class DoorObject {
 		return groups;
 	}
 	
-	private DoorLocation loc;
+	private String loc;
 	private List<String> users;
 	private List<String> groups;
 }

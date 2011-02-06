@@ -14,7 +14,6 @@ import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 
 import com.bukkit.WinSock.ProtectedDoors.DoorObject;
-import com.bukkit.WinSock.ProtectedDoors.DoorLocation;
 
 public class Door {
 	
@@ -63,7 +62,12 @@ public class Door {
 		plugin.persistence.save();
 	}
 	
-	public DoorObject getDoorObject(DoorLocation loc)
+	public void save()
+	{
+		plugin.persistence.save();
+	}
+	
+	public DoorObject getDoorObject(String loc)
 	{
 		return plugin.persistence.get(loc, DoorObject.class);
 	}

@@ -31,6 +31,6 @@ public class DoorCmd {
 	
 	public enum DoorCommand
 	{
-		CREATE, ADD, ADDG, REMOVE, DISTROY
+		CREATE, ADD, ADDG, REMOVE, REMOVEG, DELETE
 	}
 }
