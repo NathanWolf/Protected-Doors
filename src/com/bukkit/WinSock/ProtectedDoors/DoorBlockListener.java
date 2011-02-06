@@ -29,6 +29,7 @@ public class DoorBlockListener extends BlockListener {
     
     private Boolean checkCost(Player player, Sign sign)
     {
+    	System.out.println(sign.getData());
     	if (sign.getLine(0).contains("ProtectedDoor") && sign.getLine(1).contains("Cost:"))
 		{
 			int cost = 0;
@@ -59,6 +60,7 @@ public class DoorBlockListener extends BlockListener {
     //put all Block related code here
     @Override
     public void onBlockRedstoneChange(BlockFromToEvent event) {
+    	System.out.println("Redstone change!");
     	Block changedBlock = event.getBlock();
     	
     	if (changedBlock.getType() == Material.WOODEN_DOOR)
@@ -192,7 +194,7 @@ public class DoorBlockListener extends BlockListener {
     							}
     							else
     							{
-    								
+    								player.sendMessage("You can not remove users to this door!");
     							}
     							break;
     						case REMOVEG:
@@ -206,7 +208,7 @@ public class DoorBlockListener extends BlockListener {
     							}
     							else
     							{
-    								
+    								player.sendMessage("You can not remove groups to this door!");
     							}
     							break;
     						case DELETE:

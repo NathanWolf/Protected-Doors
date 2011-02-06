@@ -45,6 +45,14 @@ public class ProtectedDoors extends JavaPlugin {
     public Persistence persistence = null;
     private Messaging messaging = null;
     
+    private PluginCommand pDoorsCommand = null;
+    private PluginCommand pDoorsCreate = null;
+    private PluginCommand pDoorsAddUser = null;
+    private PluginCommand pDoorsAddGroup = null;
+    private PluginCommand pDoorsDeleteProtection = null;
+    private PluginCommand pDoorsRemoveUser = null;
+    private PluginCommand pDoorsRemoveGroup = null;
+    
     public ProtectedDoors(PluginLoader pluginLoader, Server instance,
             PluginDescriptionFile desc, File folder, File plugin,
             ClassLoader cLoader) {
@@ -92,29 +100,29 @@ public class ProtectedDoors extends JavaPlugin {
         pm.registerEvent(Event.Type.BLOCK_DAMAGED, blockListener, Priority.Highest, this);
         pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener, Priority.Highest, this);
         
-        // Register Comamnds
-        messaging = new Messaging(this, persistence);
+        // Register Commands
+        messaging = persistence.getMessaging(this);
         
-        PluginCommand pDoorsCommand = messaging.getGeneralCommand("pdoor", "Protected Doors Main Command", "pdoor <parameters>");
+        pDoorsCommand = messaging.getGeneralCommand("pdoor", "Protected Doors Main Command", "pdoor <parameters>");
         pDoorsCommand.bind("onpDoors");
         
-        PluginCommand pDoorsCreate = pDoorsCommand.getSubCommand("create", "Create a protected door", "create");
-        pDoorsCreate.bind("onCreate");
+        pDoorsCreate = pDoorsCommand.getSubCommand("create", "Create a protected door", "create");
+        //pDoorsCreate.bind("onCreate");
         
-        PluginCommand pDoorsAddUser = pDoorsCommand.getSubCommand("addu", "Add users to a protected door", "addu <List of users seperated by space>");
-        pDoorsAddUser.bind("onAddUser");
+        pDoorsAddUser = pDoorsCommand.getSubCommand("addu", "Add users to a protected door", "addu <List of users seperated by space>");
+        //pDoorsAddUser.bind("onAddUser");
         
-        PluginCommand pDoorsAddGroup = pDoorsCommand.getSubCommand("addg", "Add groups to a protected door", "addg <List of groups seperated by space>");
-        pDoorsAddGroup.bind("onAddGroup");
+        pDoorsAddGroup = pDoorsCommand.getSubCommand("addg", "Add groups to a protected door", "addg <List of groups seperated by space>");
+        //pDoorsAddGroup.bind("sonAddGroup");
         
-        PluginCommand pDoorsDeleteProtection = pDoorsCommand.getSubCommand("delete", "Remove door protection", "delete");
-        pDoorsDeleteProtection.bind("onDelete");
+        pDoorsDeleteProtection = pDoorsCommand.getSubCommand("delete", "Remove door protection", "delete");
+        //pDoorsDeleteProtection.bind("onDelete");
         
-        PluginCommand pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu", "Remove users from allowed list", "removeu <List of users seperated by space>");
-        pDoorsRemoveUser.bind("onRemoveUser");
+        pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu", "Remove users from allowed list", "removeu <List of users seperated by space>");
+        //pDoorsRemoveUser.bind("onRemoveUser");
         
-        PluginCommand pDoorsRemoveGroup = pDoorsCommand.getSubCommand("removeg", "Remove groups from allowed list", "removeg <List of groups seperated by space>");
-        pDoorsRemoveGroup.bind("onRemoveGroup");
+        pDoorsRemoveGroup = pDoorsCommand.getSubCommand("removeg", "Remove groups from allowed list", "removeg <List of groups seperated by space>");
+        //pDoorsRemoveGroup.bind("onRemoveGroup");
         
         // EXAMPLE: Custom code, here we just output some info so we can check all is well
         log.info( pdfFile.getName() + " version " + pdfFile.getVersion() + " is enabled!" );
@@ -183,28 +191,24 @@ public class ProtectedDoors extends JavaPlugin {
     
     public boolean onpDoors(CommandSender sender, String[] args)
     {
-    	Player p;
     	if(!(sender instanceof Player)) {
 			return false;
 		}
-    	else
-    	{
-    		p = (Player)sender;
-    	}
     	
-    	p.sendMessage("Usage: pdoor <option>");
-    	p.sendMessage("create: Used to protect a door");
-    	p.sendMessage("addu: Add users to the door");
-    	p.sendMessage("addg: Add groups to the door");
-    	p.sendMessage("delete: Remove door protection");
-    	p.sendMessage("removeu: Remove users from the door");
-    	p.sendMessage("removeg: Remove groups from the door");
+    	pDoorsCommand.sendHelp(sender);
+        pDoorsCreate.sendHelp(sender);
+        pDoorsAddUser.sendHelp(sender);
+        pDoorsAddGroup.sendHelp(sender);
+        pDoorsDeleteProtection.sendHelp(sender);
+        pDoorsRemoveUser.sendHelp(sender);
+        pDoorsRemoveGroup.sendHelp(sender);
+        
     	return true;
     }
     
     public boolean onCreate(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -220,12 +224,17 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to create!");
 		}
-		return true;
+    	else
+    	{
+    		pDoorsCreate.sendHelp(sender);
+    	}
+		*/return true;
+		
     }
     
     public boolean onAddUser(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -240,12 +249,16 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to add the users!");
 		}
-    	return true;
+    	else
+    	{
+    		pDoorsAddUser.sendHelp(sender);
+    	}
+    	*/return true;
     }
     
     public boolean onAddGroup(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -260,12 +273,16 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to add the groups!");
 		}
-    	return true;
+    	else
+    	{
+    		pDoorsAddGroup.sendHelp(sender);
+    	}
+    	*/return true;
     }
     
     public boolean onDelete(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -280,12 +297,16 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to remove the protection!");
 		}
-    	return true;
+    	else
+    	{
+    		pDoorsDeleteProtection.sendHelp(sender);
+    	}
+    	*/return true;
     }
     
     public boolean onRemoveUser(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -300,12 +321,16 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to remove the users!");
 		}
-    	return true;
+    	else
+    	{
+    		pDoorsRemoveUser.sendHelp(sender);
+    	}
+    	*/return true;
     }
     
     public boolean onRemoveGroup(CommandSender sender, String[] args)
     {
-    	Player p;
+    	/*Player p;
     	String[] arguments = join(args, 0).split(" ");
     	if(!(sender instanceof Player)) {
 			return false;
@@ -320,13 +345,17 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage("Right click the door to remove the groups!");
 		}
-    	return true;
+    	else
+    	{
+    		pDoorsRemoveGroup.sendHelp(sender);
+    	}
+    	*/return true;
     }
     
     @Override
     public boolean onCommand(CommandSender sender, Command cmd, String commandLabel, String[] args)
     {
-      return messaging.dispatch(this, sender, cmd.getName(), args);
+    	return messaging.dispatch(this, sender, cmd.getName(), args);
     }
     
     private static String join(String[] arr, int offset) {

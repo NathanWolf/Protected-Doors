@@ -83,7 +83,7 @@ public class Door {
 		if (signData instanceof org.bukkit.material.Sign)
 		{
 			Sign sign = (Sign)signState;
-			if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoors"))
+			if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoor"))
 			{
 				return sign;
 			}
@@ -97,7 +97,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign)
 			{
 				Sign sign = (Sign)signState;
-				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoors"))
+				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoor"))
 				{
 					return sign;
 				}
@@ -112,7 +112,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign)
 			{
 				Sign sign = (Sign)signState;
-				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoors"))
+				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoor"))
 				{
 					return sign;
 				}
@@ -127,7 +127,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign)
 			{
 				Sign sign = (Sign)signState;
-				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoors"))
+				if (sign.getLines()[0].equalsIgnoreCase("ProtectedDoor"))
 				{
 					return sign;
 				}
