@@ -1,14 +1,20 @@
 package com.bukkit.WinSock.ProtectedDoors;
 
+import java.util.Arrays;
+
 import org.bukkit.entity.*;
 import org.bukkit.World;
 import org.bukkit.block.*;
-import org.bukkit.block.Sign;
 import org.bukkit.Material;
-import org.bukkit.material.MaterialData;
+import org.bukkit.event.block.BlockFromToEvent;
 import org.bukkit.event.block.BlockListener;
 import org.bukkit.event.block.BlockInteractEvent;
 import org.bukkit.event.block.BlockDamageEvent;
+
+import com.nijikokun.bukkit.iConomy.iConomy;
+
+import com.bukkit.WinSock.ProtectedDoors.DoorObject;
+import com.bukkit.WinSock.ProtectedDoors.DoorLocation;
 
 /**
  * ICSigns block listener
@@ -20,8 +26,66 @@ public class DoorBlockListener extends BlockListener {
     public DoorBlockListener(final ProtectedDoors plugin) {
         this.plugin = plugin;
     }
+    
+    private Boolean checkCost(Player player, Sign sign)
+    {
+    	if (sign.getLine(0).contains("ProtectedDoor") && sign.getLine(1).contains("Cost:"))
+		{
+			int cost = 0;
+			try
+			{
+				cost = Integer.parseInt(sign.getLine(2).trim());
+				int playerMoney = iConomy.db.get_balance(player.getDisplayName());
+				if (playerMoney >= cost)
+				{
+					iConomy.db.set_balance(player.getDisplayName(), playerMoney - cost);
+					return true;
+				}
+				else
+				{
+					return false;
+				}
+			}
+			catch(Exception e)
+			{
+				// invaid cost
+				return true;
+			}
+		}
+    	// No cost
+    	return true;
+    }
 
     //put all Block related code here
+    @Override
+    public void onBlockRedstoneChange(BlockFromToEvent event) {
+    	Block changedBlock = event.getBlock();
+    	
+    	if (changedBlock.getType() == Material.WOODEN_DOOR)
+    	{
+    		World blockWorld = changedBlock.getWorld();
+			Block DoorBlock = blockWorld.getBlockAt(changedBlock.getX(), 
+					changedBlock.getY() + 1, changedBlock.getZ());
+			// For when someone clicks the bottom of the door
+			if (DoorBlock.getType() != changedBlock.getType())
+			{
+				DoorBlock = blockWorld.getBlockAt(changedBlock.getX(), 
+						changedBlock.getY(), changedBlock.getZ());
+			}
+			
+			DoorLocation loc = new DoorLocation();
+			loc.setX(DoorBlock.getX());
+			loc.setY(DoorBlock.getY());
+			loc.setZ(DoorBlock.getZ());
+			DoorObject DoorObj = plugin.doorHandler.getDoorObject(loc);
+			
+			if (DoorObj != null)
+			{
+				event.setCancelled(true);
+			}
+    	}
+    }
+    
     @Override
     public void onBlockDamage(BlockDamageEvent event)
     {
@@ -32,63 +96,12 @@ public class DoorBlockListener extends BlockListener {
     		Block blockBlock = event.getBlock();
 			if (blockBlock.getType() == Material.WOODEN_DOOR)
 			{
-				World blockWorld = blockBlock.getWorld();
-				Block aboveBlock = blockWorld.getBlockAt(blockBlock.getX(), 
-						blockBlock.getY() + 1, blockBlock.getZ());
-				// For when someone clicks the bottom of the door
-				if (aboveBlock.getType() == blockBlock.getType())
-				{
-					aboveBlock = blockWorld.getBlockAt(blockBlock.getX(), 
-							blockBlock.getY() + 2, blockBlock.getZ());
-				}
-			
-				// Cannot not find a better way of doing this
-				Block signBlock = blockWorld.getBlockAt(aboveBlock.getX() + 1, 
-						aboveBlock.getY(), aboveBlock.getZ());
-				if (signBlock.getType() != Material.WALL_SIGN)
-    			{
-    				signBlock = blockWorld.getBlockAt(aboveBlock.getX() - 1, 
-    						aboveBlock.getY(), aboveBlock.getZ());
-				}
-				if (signBlock.getType() != Material.WALL_SIGN)
-				{
-					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-							aboveBlock.getY(), aboveBlock.getZ() + 1);
-				}
-				if (signBlock.getType() != Material.WALL_SIGN)
-				{
-					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-							aboveBlock.getY(), aboveBlock.getZ() - 1);
-				}
-			
-				BlockState signState = signBlock.getState();
-				MaterialData signData = signState.getData();
-				if (signData instanceof org.bukkit.material.Sign)
-				{
-					Sign sign = (Sign)signState;
-					if (sign.getLine(0).contains("ProtectedDoor"))
-					{
-						for (int i = 0; i < sign.getLines().length; i++)
-						{
-							// Loop though the lines
-							if (sign.getLine(i).contains(event.getPlayer().getDisplayName()))
-							{
-								// Player on one of the lines allow access
-								canKill = true;
-							}
-							else
-							{
-								canKill = false;
-							}
-							// TODO group control when bukkit suports groups
-						}
-					}
-				}
-				else
-				{
-					// Not a Protected Door
-					canKill = true;
-				}
+				// TODO Add protection
+			}
+			else
+			{
+				// Other Block
+				canKill = true;
 			}
 			if (!canKill)
 			{
@@ -101,75 +114,94 @@ public class DoorBlockListener extends BlockListener {
     public void onBlockInteract(BlockInteractEvent event)
     {
     	Block clickedBlock = event.getBlock();
-    	LivingEntity trigger = event.getEntity();
-    	Player player;
-    	if (trigger instanceof Player)
-    	{
-    		player = (Player)trigger;
-    		if (!plugin.readOP().contains(player.getDisplayName()))
-    		{
-    			if (clickedBlock.getType() == Material.WOODEN_DOOR)
+		if(clickedBlock.getType() == Material.WOODEN_DOOR)
+		{
+    		LivingEntity trigger = event.getEntity();
+    		Player player;
+    	
+    		World blockWorld = clickedBlock.getWorld();
+    		Block DoorBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+					clickedBlock.getY() + 1, clickedBlock.getZ());
+			// For when someone clicks the bottom of the door
+			if (DoorBlock.getType() != clickedBlock.getType())
+			{
+				DoorBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+						clickedBlock.getY(), clickedBlock.getZ());
+			}
+    	
+			DoorLocation loc = new DoorLocation();
+			loc.setX(DoorBlock.getX());
+			loc.setY(DoorBlock.getY());
+			loc.setZ(DoorBlock.getZ());
+			DoorObject DoorObj = plugin.doorHandler.getDoorObject(loc);
+		
+			if(DoorObj != null)
+			{
+				if (trigger instanceof Player)
     			{
     				Boolean canOpen = false;
-    				World blockWorld = clickedBlock.getWorld();
-    		
-    				Block aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
-    						clickedBlock.getY() + 1, clickedBlock.getZ());
-    				// For when someone clicks the bottom of the door
-    				if (aboveBlock.getType() == clickedBlock.getType())
+    				player = (Player)trigger;
+    				if (plugin.useiPermissions)
     				{
-    					aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
-    							clickedBlock.getY() + 2, clickedBlock.getZ());
-    				}
-    		
-    				// Cannot not find a better way of doing this
-    				Block signBlock = blockWorld.getBlockAt(aboveBlock.getX() + 1, 
-    						aboveBlock.getY(), aboveBlock.getZ());
-    				if (signBlock.getType() != Material.WALL_SIGN)
-    				{
-    					signBlock = blockWorld.getBlockAt(aboveBlock.getX() - 1, 
-    							aboveBlock.getY(), aboveBlock.getZ());
-    				}
-    				if (signBlock.getType() != Material.WALL_SIGN)
-    				{
-    					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-    							aboveBlock.getY(), aboveBlock.getZ() + 1);
-    				}
-    				if (signBlock.getType() != Material.WALL_SIGN)
-    				{
-    					signBlock = blockWorld.getBlockAt(aboveBlock.getX(), 
-    							aboveBlock.getY(), aboveBlock.getZ() - 1);
-    				}
-    		
-    				BlockState signState = signBlock.getState();
-    				MaterialData signData = signState.getData();
-    				System.out.println(signData.getItemType().name());
-    				if (signData instanceof org.bukkit.material.Sign)
-    				{
-    					Sign sign = (Sign)signState;
-    					if (sign.getLine(0).contains("ProtectedDoor"))
+    					if (!ProtectedDoors.Permissions.has(player, "pdoors.admin"))
     					{
-    						for (int i = 0; i < sign.getLines().length; i++)
+
+    						if (plugin.useiConomy)
     						{
-    							// Loop though the lines
-    							if (sign.getLine(i).contains(player.getDisplayName()))
+    							Block aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+    									clickedBlock.getY() + 1, clickedBlock.getZ());
+    							// For when someone clicks the bottom of the door
+    							if (aboveBlock.getType() == clickedBlock.getType())
     							{
-    								// Player on one of the lines allow access
+    								aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+    										clickedBlock.getY() + 2, clickedBlock.getZ());
+    							}
+    				
+    							Sign sign = plugin.doorHandler.getSign(aboveBlock);
+    				
+    							if (sign != null)
+    							{
+    								canOpen = checkCost(player, sign);
+    							}
+    							else
+    							{
+    								// No sign protecting it so you can open it
     								canOpen = true;
     							}
-    							// TODO group control when bukkit suports groups
     						}
-    					}
-    					else
-    					{
-    						// Not a Protected Door Sign
-    						canOpen = true;
     					}
     				}
     				else
     				{
-    					// No sign protecting it so you can open it
-    					canOpen = true;
+    					if (!plugin.readOP().contains(player.getDisplayName()))
+    					{
+    						if (clickedBlock.getType() == Material.WOODEN_DOOR)
+    						{
+    							if (plugin.useiConomy)
+    							{
+    								Block aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+    										clickedBlock.getY() + 1, clickedBlock.getZ());
+    								// For when someone clicks the bottom of the door
+    								if (aboveBlock.getType() == clickedBlock.getType())
+    								{
+    									aboveBlock = blockWorld.getBlockAt(clickedBlock.getX(), 
+    											clickedBlock.getY() + 2, clickedBlock.getZ());
+    								}
+    				
+    								Sign sign = plugin.doorHandler.getSign(aboveBlock);
+    				
+    								if (sign != null)
+    								{
+    									canOpen = checkCost(player, sign);
+    								}
+    								else
+    								{
+    									// No cost so open
+    									canOpen = true;
+    								}
+    							}
+    						}
+    					}		
     				}
     				if (!canOpen)
     				{
@@ -177,7 +209,32 @@ public class DoorBlockListener extends BlockListener {
     					event.setCancelled(true);
     				}
     			}
-    		}
-    	}
+			}
+			else
+			{
+				System.out.println("Not a protected Door!!");
+				if (trigger instanceof Player)
+    			{
+    				player = (Player)trigger;
+    				DoorCmd pendingCmd = plugin.doorHandler.getPendingPlayerCommand(player);
+    				if (pendingCmd != null)
+    				{
+    					System.out.println("Player has pending Command!");
+    					switch (pendingCmd.GetCommand())
+    					{
+    						case CREATE:
+    							DoorObject temp = new DoorObject();
+    							temp.setUsers(Arrays.asList(player.getDisplayName()));
+    							temp.setLocation(loc);
+    							plugin.doorHandler.saveDoorObject(temp);
+    							player.sendMessage("Protected Door Created!");
+    							plugin.doorHandler.removePendingPlayerCommand(pendingCmd);
+    							break;
+    					}
+    					event.setCancelled(true);
+    				}
+    			}
+			}
+		}
     }
 }

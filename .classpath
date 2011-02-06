@@ -3,5 +3,8 @@
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.6"/>
 	<classpathentry kind="lib" path="C:/Users/winsock/Downloads/bukkit-0.0.1-SNAPSHOT (2).jar"/>
+	<classpathentry kind="lib" path="C:/Users/winsock/Desktop/bukkit server/plugins/iConomy.jar"/>
+	<classpathentry kind="lib" path="C:/Users/winsock/Desktop/bukkit server/plugins/Permissions.jar"/>
+	<classpathentry kind="lib" path="C:/Users/winsock/Desktop/bukkit server/plugins/Persistence.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
