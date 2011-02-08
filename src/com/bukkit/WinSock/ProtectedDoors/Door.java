@@ -65,7 +65,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign) {
 				Sign sign = (Sign) signState;
 				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.1"))) //$NON-NLS-1$
+						.getString("Door.0"))) //$NON-NLS-1$
 				{
 					return sign;
 				}
@@ -79,7 +79,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign) {
 				Sign sign = (Sign) signState;
 				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.2"))) //$NON-NLS-1$
+						.getString("Door.0"))) //$NON-NLS-1$
 				{
 					return sign;
 				}
@@ -93,7 +93,7 @@ public class Door {
 			if (signData instanceof org.bukkit.material.Sign) {
 				Sign sign = (Sign) signState;
 				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.3"))) //$NON-NLS-1$
+						.getString("Door.0"))) //$NON-NLS-1$
 				{
 					return sign;
 				}

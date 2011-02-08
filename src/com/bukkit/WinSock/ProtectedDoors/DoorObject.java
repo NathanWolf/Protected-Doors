@@ -42,7 +42,7 @@ public class DoorObject {
 		return users;
 	}
 
-	private void setGroups(List<String> groups) {
+	public void setGroups(List<String> groups) {
 		this.groups = groups;
 	}
 
@@ -64,16 +64,13 @@ public class DoorObject {
 		this.loc = loc;
 	}
 
-	private void setUsers(List<String> users) {
+	public void setUsers(List<String> users) {
 		this.users = users;
 	}
 
 	public void addUsers(List<String> users) {
 		if (this.users != null) {
-			System.out.println(this.users.size());
 			this.users.addAll(users);
-			System.out.println(users.size());
-			System.out.println(this.users.size());
 		} else {
 			setUsers(users);
 		}
@@ -84,64 +81,51 @@ public class DoorObject {
 			this.users.removeAll(users);
 		}
 	}
-	
-	public boolean canOpen(Player player, ProtectedDoors plugin)
-	{
-		if (this.creator.equalsIgnoreCase(player.getDisplayName()) || this.users.contains(player.getDisplayName())){
+
+	public boolean canOpen(Player player, ProtectedDoors plugin) {
+		if (this.creator.equalsIgnoreCase(player.getDisplayName())
+				|| this.users.contains(player.getDisplayName())) {
 			return true;
 		}
-		if (plugin.useiPermissions)
-		{
-			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")){
+		if (plugin.useiPermissions) {
+			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {
 				return true;
 			}
-		}
-		else
-		{
-			if (plugin.readOP().contains(player.getDisplayName()))
-			{
+		} else {
+			if (plugin.readOP().contains(player.getDisplayName())) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	public boolean canRemove(Player player, ProtectedDoors plugin)
-	{
-		if (this.creator.equalsIgnoreCase(player.getDisplayName()) || this.users.contains(player.getDisplayName())){
+
+	public boolean canRemove(Player player, ProtectedDoors plugin) {
+		if (this.creator.equalsIgnoreCase(player.getDisplayName())
+				|| this.users.contains(player.getDisplayName())) {
 			return true;
 		}
-		if (plugin.useiPermissions)
-		{
-			if (ProtectedDoors.Permissions.has(player, "pdoors.admin")){
+		if (plugin.useiPermissions) {
+			if (ProtectedDoors.Permissions.has(player, "pdoors.admin")) {
 				return true;
 			}
-		}
-		else
-		{
-			if (plugin.readOP().contains(player.getDisplayName()))
-			{
+		} else {
+			if (plugin.readOP().contains(player.getDisplayName())) {
 				return true;
 			}
 		}
 		return false;
 	}
-	
-	public boolean canModify(Player player, ProtectedDoors plugin)
-	{
-		if (this.creator.equalsIgnoreCase(player.getDisplayName())){
+
+	public boolean canModify(Player player, ProtectedDoors plugin) {
+		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
 		}
-		if (plugin.useiPermissions)
-		{
-			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")){
+		if (plugin.useiPermissions) {
+			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {
 				return true;
 			}
-		}
-		else
-		{
-			if (plugin.readOP().contains(player.getDisplayName()))
-			{
+		} else {
+			if (plugin.readOP().contains(player.getDisplayName())) {
 				return true;
 			}
 		}
