@@ -33,9 +33,7 @@ public class DoorBlockListener extends BlockListener {
 	}
 
 	private Boolean checkCost(Player player, Sign sign, DoorObject obj) {
-		if (sign.getLine(0).contains(Messages.getString("DoorBlockListener.0"))
-				&& sign.getLine(1).contains(
-						Messages.getString("DoorBlockListener.1"))) {
+		if (sign.getLine(1).contains("Cost:")) {
 			int cost = 0;
 			try {
 				cost = Integer.parseInt(sign.getLine(2).trim());
@@ -52,7 +50,7 @@ public class DoorBlockListener extends BlockListener {
 				}
 			} catch (Exception e) {
 				// invaid cost
-				return true;
+				return false;
 			}
 		}
 		// No cost
@@ -74,7 +72,7 @@ public class DoorBlockListener extends BlockListener {
 					DoorBlock = blockWorld.getBlockAt(blockBlock.getX(),
 							blockBlock.getY(), blockBlock.getZ());
 				}
-
+				
 				String loc = Messages.getString("DoorBlockListener.3");
 				loc += String.valueOf(DoorBlock.getX())
 						+ Messages.getString("DoorBlockListener.2");
@@ -115,6 +113,8 @@ public class DoorBlockListener extends BlockListener {
 				DoorBlock = blockWorld.getBlockAt(clickedBlock.getX(),
 						clickedBlock.getY(), clickedBlock.getZ());
 			}
+			
+			Block aboveBlock = blockWorld.getBlockAt(DoorBlock.getX(), DoorBlock.getY() + 1, DoorBlock.getZ());
 
 			String loc = Messages.getString("DoorBlockListener.3");
 			loc += String.valueOf(DoorBlock.getX())
@@ -217,20 +217,7 @@ public class DoorBlockListener extends BlockListener {
 						if (!DoorObj.canOpen(player, plugin)) //$NON-NLS-1$
 						{
 							if (plugin.useiConomy) {
-								Block aboveBlock = blockWorld.getBlockAt(
-										clickedBlock.getX(),
-										clickedBlock.getY() + 1,
-										clickedBlock.getZ());
-								// For when someone clicks the bottom of the
-								// door
-								if (aboveBlock.getType() == clickedBlock
-										.getType()) {
-									aboveBlock = blockWorld.getBlockAt(
-											clickedBlock.getX(),
-											clickedBlock.getY() + 2,
-											clickedBlock.getZ());
-								}
-
+								
 								Sign sign = plugin.doorHandler
 										.getSign(aboveBlock);
 
@@ -254,6 +241,34 @@ public class DoorBlockListener extends BlockListener {
 			} else {
 				if (trigger instanceof Player) {
 					player = (Player) trigger;
+					Sign sign = plugin.doorHandler.getSign(aboveBlock);
+					if (sign != null)
+					{
+						// Old style sign
+						for (int i = 0; i < sign.getLines().length; i++)
+    					{
+    						if (plugin.useiPermissions)
+    						{
+    							// Loop though the lines
+    							if (!sign.getLine(i).contains(player.getDisplayName()) || 
+	    								!ProtectedDoors.Permissions.has(player, "pdoors.mod"))
+	    						{
+    								event.setCancelled(true);
+	    						}
+    						}
+    						else
+    						{
+    							// Loop though the lines
+    							if (!sign.getLine(i).contains(player.getDisplayName()) || 
+	    								!plugin.readOP().contains(player))
+	    						{
+    								event.setCancelled(true);
+	    						}
+    						}
+    					}
+					}
+					else
+					{
 					boolean canCreate = false;
 					if (plugin.useiPermissions) {
 						if (ProtectedDoors.Permissions.has(player,
@@ -288,6 +303,7 @@ public class DoorBlockListener extends BlockListener {
 									.removePendingPlayerCommand(pendingCmd);
 							event.setCancelled(true);
 						}
+					}
 					}
 				}
 			}

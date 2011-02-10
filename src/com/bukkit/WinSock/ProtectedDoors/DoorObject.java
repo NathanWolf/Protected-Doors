@@ -83,13 +83,23 @@ public class DoorObject {
 	}
 
 	public boolean canOpen(Player player, ProtectedDoors plugin) {
-		if (this.creator.equalsIgnoreCase(player.getDisplayName())
-				|| this.users.contains(player.getDisplayName())) {
+		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
+		}
+		if (this.users != null) {
+			if (this.users.contains(player.getDisplayName())) {
+				return true;
+			}
 		}
 		if (plugin.useiPermissions) {
 			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {
 				return true;
+			}
+			if (this.groups != null) {
+				if (this.groups.contains(ProtectedDoors.Permissions
+						.getGroup(player.getDisplayName()))) {
+					return true;
+				}
 			}
 		} else {
 			if (plugin.readOP().contains(player.getDisplayName())) {
@@ -100,9 +110,13 @@ public class DoorObject {
 	}
 
 	public boolean canRemove(Player player, ProtectedDoors plugin) {
-		if (this.creator.equalsIgnoreCase(player.getDisplayName())
-				|| this.users.contains(player.getDisplayName())) {
+		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
+		}
+		if (this.users != null) {
+			if (this.users.contains(player.getDisplayName())) {
+				return true;
+			}
 		}
 		if (plugin.useiPermissions) {
 			if (ProtectedDoors.Permissions.has(player, "pdoors.admin")) {
@@ -119,6 +133,11 @@ public class DoorObject {
 	public boolean canModify(Player player, ProtectedDoors plugin) {
 		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
+		}
+		if (this.users != null) {
+			if (this.users.contains(player.getDisplayName())) {
+				return true;
+			}
 		}
 		if (plugin.useiPermissions) {
 			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {

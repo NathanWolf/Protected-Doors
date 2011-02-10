@@ -8,7 +8,6 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.Sign;
 import org.bukkit.entity.Player;
-import org.bukkit.material.MaterialData;
 
 public class Door {
 
@@ -44,62 +43,34 @@ public class Door {
 
 	public Sign getSign(Block block) {
 		World blockWorld = block.getWorld();
-		// Cannot not find a better way of doing this
-		Block signBlock = blockWorld.getBlockAt(block.getX() + 1, block.getY(),
-				block.getZ());
+		
+		Block signBlock = blockWorld.getBlockAt(block.getX() + 1, 
+				block.getY(), block.getZ());
+		if (signBlock.getType() != Material.WALL_SIGN)
+		{
+			signBlock = blockWorld.getBlockAt(block.getX() - 1, 
+					block.getY(), block.getZ());
+		}
+		if (signBlock.getType() != Material.WALL_SIGN)
+		{
+			signBlock = blockWorld.getBlockAt(block.getX(), 
+					block.getY(), block.getZ() + 1);
+		}
+		if (signBlock.getType() != Material.WALL_SIGN)
+		{
+			signBlock = blockWorld.getBlockAt(block.getX(), 
+					block.getY(), block.getZ() - 1);
+		}
+
 		BlockState signState = signBlock.getState();
-		MaterialData signData = signState.getData();
-		if (signData instanceof org.bukkit.material.Sign) {
-			Sign sign = (Sign) signState;
-			if (sign.getLines()[0].equalsIgnoreCase(Messages
-					.getString("Door.0"))) //$NON-NLS-1$
+		if (signState instanceof Sign)
+		{
+			Sign sign = (Sign)signState;
+			if (sign.getLine(0).contains("ProtectedDoor"))
 			{
 				return sign;
 			}
 		}
-		if (signBlock.getType() != Material.WALL_SIGN) {
-			signBlock = blockWorld.getBlockAt(block.getX() - 1, block.getY(),
-					block.getZ());
-			signState = signBlock.getState();
-			signData = signState.getData();
-			if (signData instanceof org.bukkit.material.Sign) {
-				Sign sign = (Sign) signState;
-				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.0"))) //$NON-NLS-1$
-				{
-					return sign;
-				}
-			}
-		}
-		if (signBlock.getType() != Material.WALL_SIGN) {
-			signBlock = blockWorld.getBlockAt(block.getX(), block.getY(),
-					block.getZ() + 1);
-			signState = signBlock.getState();
-			signData = signState.getData();
-			if (signData instanceof org.bukkit.material.Sign) {
-				Sign sign = (Sign) signState;
-				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.0"))) //$NON-NLS-1$
-				{
-					return sign;
-				}
-			}
-		}
-		if (signBlock.getType() != Material.WALL_SIGN) {
-			signBlock = blockWorld.getBlockAt(block.getX(), block.getY(),
-					block.getZ() - 1);
-			signState = signBlock.getState();
-			signData = signState.getData();
-			if (signData instanceof org.bukkit.material.Sign) {
-				Sign sign = (Sign) signState;
-				if (sign.getLines()[0].equalsIgnoreCase(Messages
-						.getString("Door.0"))) //$NON-NLS-1$
-				{
-					return sign;
-				}
-			}
-		}
-
 		return null;
 	}
 

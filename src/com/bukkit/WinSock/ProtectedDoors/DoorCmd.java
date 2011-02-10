@@ -4,7 +4,7 @@ import org.bukkit.entity.Player;
 
 public class DoorCmd {
 	public enum DoorCommand {
-		ADD, ADDG, CREATE, DELETE, REMOVE, REMOVEG
+		ADD, ADDG, CREATE, DELETE, REMOVE, REMOVEG, INFO
 	}
 
 	private String[] args;
