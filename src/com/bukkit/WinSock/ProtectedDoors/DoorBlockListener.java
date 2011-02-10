@@ -33,7 +33,7 @@ public class DoorBlockListener extends BlockListener {
 	}
 
 	private Boolean checkCost(Player player, Sign sign, DoorObject obj) {
-		if (sign.getLine(1).contains("Cost:")) {
+		if (sign.getLine(1).equalsIgnoreCase("Cost:")) {
 			int cost = 0;
 			try {
 				cost = Integer.parseInt(sign.getLine(2).trim());
@@ -53,6 +53,7 @@ public class DoorBlockListener extends BlockListener {
 				return false;
 			}
 		}
+		System.out.println("No cost!");
 		// No cost
 		return true;
 	}
@@ -135,8 +136,6 @@ public class DoorBlockListener extends BlockListener {
 						case CREATE:
 							player.sendMessage(Messages
 									.getString("DoorBlockListener.7")); //$NON-NLS-1$
-							plugin.doorHandler
-									.removePendingPlayerCommand(pendingCmd);
 							break;
 						case ADD:
 							if (DoorObj.canModify(player, plugin)) //$NON-NLS-1$
@@ -210,9 +209,16 @@ public class DoorBlockListener extends BlockListener {
 										.getString("DoorBlockListener.22")); //$NON-NLS-1$
 							}
 							break;
+						case INFO:
+							player.sendMessage("Can open: " + DoorObj.canOpen(player, plugin));
+							player.sendMessage("Creator: " + DoorObj.getCreator());
+							player.sendMessage("Users: " + DoorObj.getUsersString());
+							player.sendMessage("Groups: " + DoorObj.getGroupsString());
+							break;
 						}
 						plugin.doorHandler
-								.removePendingPlayerCommand(pendingCmd);
+								.removePendingPlayerCommand();
+						event.setCancelled(true);
 					} else {
 						if (!DoorObj.canOpen(player, plugin)) //$NON-NLS-1$
 						{
@@ -247,24 +253,29 @@ public class DoorBlockListener extends BlockListener {
 						// Old style sign
 						for (int i = 0; i < sign.getLines().length; i++)
     					{
-    						if (plugin.useiPermissions)
-    						{
-    							// Loop though the lines
-    							if (!sign.getLine(i).contains(player.getDisplayName()) || 
-	    								!ProtectedDoors.Permissions.has(player, "pdoors.mod"))
-	    						{
-    								event.setCancelled(true);
-	    						}
-    						}
-    						else
-    						{
-    							// Loop though the lines
-    							if (!sign.getLine(i).contains(player.getDisplayName()) || 
-	    								!plugin.readOP().contains(player))
-	    						{
-    								event.setCancelled(true);
-	    						}
-    						}
+							if (!sign.getLine(1).equalsIgnoreCase("Cost:"))
+							{
+								if (plugin.useiPermissions)
+    							{
+    								// Loop though the lines
+    								if (!sign.getLine(i).contains(player.getDisplayName()) || 
+    										!ProtectedDoors.Permissions.has(player, "pdoors.mod"))
+	    							{
+    									plugin.doorHandler.removePendingPlayerCommand();
+    									event.setCancelled(true);
+	    							}
+    							}
+    							else
+    							{
+    								// Loop though the lines
+    								if (!sign.getLine(i).contains(player.getDisplayName()) || 
+    										!plugin.readOP().contains(player))
+	    							{
+    									plugin.doorHandler.removePendingPlayerCommand();
+    									event.setCancelled(true);
+	    							}
+    							}
+							}
     					}
 					}
 					else
@@ -298,9 +309,12 @@ public class DoorBlockListener extends BlockListener {
 											.getString("DoorBlockListener.29")); //$NON-NLS-1$
 								}
 								break;
+							case INFO:
+								player.sendMessage("Unprotected Door!");
+								break;
 							}
 							plugin.doorHandler
-									.removePendingPlayerCommand(pendingCmd);
+									.removePendingPlayerCommand();
 							event.setCancelled(true);
 						}
 					}

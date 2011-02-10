@@ -22,7 +22,7 @@ public class Door {
 		if (getPendingPlayerCommand(command.GetPlayer()) == null) {
 			pendingCommands.add(command);
 		} else {
-			removePendingPlayerCommand(command);
+			removePendingPlayerCommand();
 			pendingCommands.add(command);
 		}
 	}
@@ -78,8 +78,8 @@ public class Door {
 		plugin.persistence.remove(obj);
 	}
 
-	public void removePendingPlayerCommand(DoorCmd command) {
-		pendingCommands.remove(command);
+	public void removePendingPlayerCommand() {
+		pendingCommands.clear();
 	}
 
 	public void save() {

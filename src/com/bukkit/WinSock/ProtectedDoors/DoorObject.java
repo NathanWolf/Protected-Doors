@@ -150,4 +150,38 @@ public class DoorObject {
 		}
 		return false;
 	}
+	
+	public String getUsersString()
+	{
+		String users = "";
+		if (this.users != null)
+		{
+			for (String s : this.users)
+			{
+				users += s + ", ";
+			}
+			if (users.length() > 1)
+			{
+				return users.substring(0, users.length() - 2);
+			}
+		}
+		return "None";
+	}
+	
+	public String getGroupsString()
+	{
+		String groups = "";
+		if (this.groups != null)
+		{
+			for (String s : this.groups)
+			{
+				groups += s + ", ";
+			}
+			if (groups.length() > 1)
+			{
+				return groups.substring(0, groups.length() - 2);
+			}
+		}
+		return "None";
+	}
 }
