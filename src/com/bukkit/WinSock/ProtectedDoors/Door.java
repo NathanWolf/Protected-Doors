@@ -43,31 +43,26 @@ public class Door {
 
 	public Sign getSign(Block block) {
 		World blockWorld = block.getWorld();
-		
-		Block signBlock = blockWorld.getBlockAt(block.getX() + 1, 
-				block.getY(), block.getZ());
-		if (signBlock.getType() != Material.WALL_SIGN)
-		{
-			signBlock = blockWorld.getBlockAt(block.getX() - 1, 
-					block.getY(), block.getZ());
+
+		Block signBlock = blockWorld.getBlockAt(block.getX() + 1, block.getY(),
+				block.getZ());
+		if (signBlock.getType() != Material.WALL_SIGN) {
+			signBlock = blockWorld.getBlockAt(block.getX() - 1, block.getY(),
+					block.getZ());
 		}
-		if (signBlock.getType() != Material.WALL_SIGN)
-		{
-			signBlock = blockWorld.getBlockAt(block.getX(), 
-					block.getY(), block.getZ() + 1);
+		if (signBlock.getType() != Material.WALL_SIGN) {
+			signBlock = blockWorld.getBlockAt(block.getX(), block.getY(),
+					block.getZ() + 1);
 		}
-		if (signBlock.getType() != Material.WALL_SIGN)
-		{
-			signBlock = blockWorld.getBlockAt(block.getX(), 
-					block.getY(), block.getZ() - 1);
+		if (signBlock.getType() != Material.WALL_SIGN) {
+			signBlock = blockWorld.getBlockAt(block.getX(), block.getY(),
+					block.getZ() - 1);
 		}
 
 		BlockState signState = signBlock.getState();
-		if (signState instanceof Sign)
-		{
-			Sign sign = (Sign)signState;
-			if (sign.getLine(0).contains("ProtectedDoor"))
-			{
+		if (signState instanceof Sign) {
+			Sign sign = (Sign) signState;
+			if (sign.getLine(0).contains("ProtectedDoor")) {
 				return sign;
 			}
 		}

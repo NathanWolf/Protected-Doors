@@ -38,6 +38,8 @@ public class ProtectedDoors extends JavaPlugin {
 	public static PermissionHandler Permissions = null;
 
 	private final DoorBlockListener blockListener = new DoorBlockListener(this);
+	private final DoorPlayerListener playerListener = new DoorPlayerListener(
+			this);
 	private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 	public Door doorHandler = null;
 	private PluginUtilities putils = null;
@@ -220,33 +222,55 @@ public class ProtectedDoors extends JavaPlugin {
 				Priority.Highest, this);
 		pm.registerEvent(Event.Type.BLOCK_PLACED, blockListener,
 				Priority.Highest, this);
+		pm.registerEvent(Event.Type.REDSTONE_CHANGE, blockListener,
+				Priority.Highest, this);
+		pm.registerEvent(Event.Type.PLAYER_ITEM, playerListener,
+				Priority.Highest, this);
 
 		// Register Commands
 		putils = persistence.getUtilities(this);
 
-		pDoorsCommand = putils.getGeneralCommand("pdoor", "Protected Doors Main Command", "pdoor <parameters>", PermissionType.ALLOW_ALL);
-        pDoorsCommand.bind("onpDoors");
-        
-        PluginCommand pDoorsCreate = pDoorsCommand.getSubCommand("create", "Create a protected door", "create", PermissionType.ALLOW_ALL);
-        pDoorsCreate.bind("onCreate");
-        
-        PluginCommand pDoorsAddUser = pDoorsCommand.getSubCommand("addu", "Add users to a protected door", "addu <List of users seperated by space>", PermissionType.ALLOW_ALL);
-        pDoorsAddUser.bind("onAddUser");
-        
-        PluginCommand pDoorsAddGroup = pDoorsCommand.getSubCommand("addg", "Add groups to a protected door", "addg <List of groups seperated by space>", PermissionType.ALLOW_ALL);
-        pDoorsAddGroup.bind("onAddGroup");
-        
-        PluginCommand pDoorsDeleteProtection = pDoorsCommand.getSubCommand("delete", "Remove door protection", "delete", PermissionType.ALLOW_ALL);
-        pDoorsDeleteProtection.bind("onDelete");
-        
-        PluginCommand pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu", "Remove users from allowed list", "removeu <List of users seperated by space>", PermissionType.ALLOW_ALL);
-        pDoorsRemoveUser.bind("onRemoveUser");
-        
-        PluginCommand pDoorsRemoveGroup = pDoorsCommand.getSubCommand("removeg", "Remove groups from allowed list", "removeg <List of groups seperated by space>", PermissionType.ALLOW_ALL);
-        pDoorsRemoveGroup.bind("onRemoveGroup");
-        
-        PluginCommand pDoorsInfo = pDoorsCommand.getSubCommand("info", "Get info on a door", "info", PermissionType.ALLOW_ALL);
-        pDoorsInfo.bind("onInfo");
+		pDoorsCommand = putils.getGeneralCommand("pdoor",
+				"Protected Doors Main Command", "pdoor <parameters>",
+				PermissionType.ALLOW_ALL);
+		pDoorsCommand.bind("onpDoors");
+
+		PluginCommand pDoorsCreate = pDoorsCommand.getSubCommand("create",
+				"Create a protected door", "create", PermissionType.ALLOW_ALL);
+		pDoorsCreate.bind("onCreate");
+
+		PluginCommand pDoorsAddUser = pDoorsCommand.getSubCommand("addu",
+				"Add users to a protected door",
+				"addu <List of users seperated by space>",
+				PermissionType.ALLOW_ALL);
+		pDoorsAddUser.bind("onAddUser");
+
+		PluginCommand pDoorsAddGroup = pDoorsCommand.getSubCommand("addg",
+				"Add groups to a protected door",
+				"addg <List of groups seperated by space>",
+				PermissionType.ALLOW_ALL);
+		pDoorsAddGroup.bind("onAddGroup");
+
+		PluginCommand pDoorsDeleteProtection = pDoorsCommand.getSubCommand(
+				"delete", "Remove door protection", "delete",
+				PermissionType.ALLOW_ALL);
+		pDoorsDeleteProtection.bind("onDelete");
+
+		PluginCommand pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu",
+				"Remove users from allowed list",
+				"removeu <List of users seperated by space>",
+				PermissionType.ALLOW_ALL);
+		pDoorsRemoveUser.bind("onRemoveUser");
+
+		PluginCommand pDoorsRemoveGroup = pDoorsCommand.getSubCommand(
+				"removeg", "Remove groups from allowed list",
+				"removeg <List of groups seperated by space>",
+				PermissionType.ALLOW_ALL);
+		pDoorsRemoveGroup.bind("onRemoveGroup");
+
+		PluginCommand pDoorsInfo = pDoorsCommand.getSubCommand("info",
+				"Get info on a door", "info", PermissionType.ALLOW_ALL);
+		pDoorsInfo.bind("onInfo");
 
 		// EXAMPLE: Custom code, here we just output some info so we can check
 		// all is well
@@ -255,8 +279,7 @@ public class ProtectedDoors extends JavaPlugin {
 				+ Messages.getString("ProtectedDoors.44"));
 	}
 
-	public boolean onInfo(CommandSender sender, String[] args)
-	{
+	public boolean onInfo(CommandSender sender, String[] args) {
 		Player p;
 		if (!(sender instanceof Player)) {
 			return false;
@@ -268,7 +291,7 @@ public class ProtectedDoors extends JavaPlugin {
 		p.sendMessage("Right click a door to get its info!");
 		return true;
 	}
-	
+
 	public boolean onpDoors(CommandSender sender, String[] args) {
 		if (!(sender instanceof Player)) {
 			return false;
