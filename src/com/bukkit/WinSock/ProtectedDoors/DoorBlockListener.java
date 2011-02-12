@@ -91,6 +91,42 @@ public class DoorBlockListener extends BlockListener {
 						plugin.doorHandler.save();
 					}
 				}
+				else
+				{
+					// Other door first check for old style doors
+					Block aboveBlock = blockWorld.getBlockAt(DoorBlock.getX(), 
+							DoorBlock.getY() + 1, DoorBlock.getZ());
+					Sign sign = plugin.doorHandler.getSign(aboveBlock);
+					if (sign != null)
+					{
+						if (!sign.getLine(1).equalsIgnoreCase("Cost:"))
+						{
+							for (int i = 0; i < sign.getLines().length; i++)
+							{
+								// Loop though the lines
+								if (sign.getLine(i).contains(event.getPlayer().getDisplayName()))
+								{
+									// Player on one of the lines allow access
+									canKill = true;
+								}
+								else
+								{
+									canKill = false;
+								}
+							}
+						}
+						else
+						{
+							// Cost but door isn't registered yet.
+							canKill = true;
+						}
+					}
+					else
+					{
+						// Not a protected door
+						canKill = true;
+					}
+				}
 			} else {
 				// Other Block
 				canKill = true;

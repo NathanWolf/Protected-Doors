@@ -44,7 +44,15 @@ public class ProtectedDoors extends JavaPlugin {
 	public Door doorHandler = null;
 	private PluginUtilities putils = null;
 	private PluginDescriptionFile pdfFile = this.getDescription();
+	
 	private PluginCommand pDoorsCommand = null;
+	private PluginCommand pDoorsCreate = null;
+	private PluginCommand pDoorsAddUser = null;
+	private PluginCommand pDoorsAddGroup = null;
+	private PluginCommand pDoorsDeleteProtection = null;
+	private PluginCommand pDoorsRemoveUser = null;
+	private PluginCommand pDoorsRemoveGroup = null;
+	private PluginCommand pDoorsInfo = null;
 
 	public Persistence persistence = null;
 
@@ -107,7 +115,7 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.3"));
 		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true);
+			pDoorsAddGroup.sendHelp(sender, "", true, false);
 		}
 		return true;
 	}
@@ -124,7 +132,7 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.4"));
 		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true);
+			pDoorsAddUser.sendHelp(sender, "", true, false);
 		}
 		return true;
 	}
@@ -143,13 +151,10 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 
-		if (args.length == 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.CREATE, args);
-			doorHandler.addCommand(data);
-			p.sendMessage(Messages.getString("ProtectedDoors.5"));
-		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true);
-		}
+		DoorCmd data = new DoorCmd(p, DoorCommand.CREATE, args);
+		doorHandler.addCommand(data);
+		p.sendMessage(Messages.getString("ProtectedDoors.5"));
+		
 		return true;
 
 	}
@@ -166,7 +171,7 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.6"));
 		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true);
+			pDoorsDeleteProtection.sendHelp(sender, "", true, false);
 		}
 		return true;
 	}
@@ -235,40 +240,40 @@ public class ProtectedDoors extends JavaPlugin {
 				PermissionType.ALLOW_ALL);
 		pDoorsCommand.bind("onpDoors");
 
-		PluginCommand pDoorsCreate = pDoorsCommand.getSubCommand("create",
+		pDoorsCreate = pDoorsCommand.getSubCommand("create",
 				"Create a protected door", "create", PermissionType.ALLOW_ALL);
 		pDoorsCreate.bind("onCreate");
 
-		PluginCommand pDoorsAddUser = pDoorsCommand.getSubCommand("addu",
+		pDoorsAddUser = pDoorsCommand.getSubCommand("addu",
 				"Add users to a protected door",
 				"addu <List of users seperated by space>",
 				PermissionType.ALLOW_ALL);
 		pDoorsAddUser.bind("onAddUser");
 
-		PluginCommand pDoorsAddGroup = pDoorsCommand.getSubCommand("addg",
+		pDoorsAddGroup = pDoorsCommand.getSubCommand("addg",
 				"Add groups to a protected door",
 				"addg <List of groups seperated by space>",
 				PermissionType.ALLOW_ALL);
 		pDoorsAddGroup.bind("onAddGroup");
 
-		PluginCommand pDoorsDeleteProtection = pDoorsCommand.getSubCommand(
+		pDoorsDeleteProtection = pDoorsCommand.getSubCommand(
 				"delete", "Remove door protection", "delete",
 				PermissionType.ALLOW_ALL);
 		pDoorsDeleteProtection.bind("onDelete");
 
-		PluginCommand pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu",
+		pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu",
 				"Remove users from allowed list",
 				"removeu <List of users seperated by space>",
 				PermissionType.ALLOW_ALL);
 		pDoorsRemoveUser.bind("onRemoveUser");
 
-		PluginCommand pDoorsRemoveGroup = pDoorsCommand.getSubCommand(
+		pDoorsRemoveGroup = pDoorsCommand.getSubCommand(
 				"removeg", "Remove groups from allowed list",
 				"removeg <List of groups seperated by space>",
 				PermissionType.ALLOW_ALL);
 		pDoorsRemoveGroup.bind("onRemoveGroup");
 
-		PluginCommand pDoorsInfo = pDoorsCommand.getSubCommand("info",
+		pDoorsInfo = pDoorsCommand.getSubCommand("info",
 				"Get info on a door", "info", PermissionType.ALLOW_ALL);
 		pDoorsInfo.bind("onInfo");
 
@@ -297,7 +302,7 @@ public class ProtectedDoors extends JavaPlugin {
 			return false;
 		}
 
-		pDoorsCommand.sendHelp(sender, null, true, true);
+		pDoorsCommand.sendHelp(sender, "", true, true);
 
 		return true;
 	}
@@ -314,7 +319,7 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.45"));
 		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true);
+			pDoorsRemoveGroup.sendHelp(sender, "", true, false);
 		}
 		return true;
 	}
@@ -331,7 +336,7 @@ public class ProtectedDoors extends JavaPlugin {
 			doorHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.46")); //$NON-NLS-1$
 		} else {
-			pDoorsCommand.sendHelp(sender, null, true, true); //$NON-NLS-1$
+			pDoorsRemoveUser.sendHelp(sender, "", true, false);
 		}
 		return true;
 	}
