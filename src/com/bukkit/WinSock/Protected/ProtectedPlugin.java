@@ -1,4 +1,4 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected;
 
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -19,7 +19,10 @@ import org.bukkit.plugin.PluginLoader;
 import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
-import com.bukkit.WinSock.ProtectedDoors.DoorCmd.DoorCommand;
+import com.bukkit.WinSock.Protected.ProtectedCmd.ProtectedCommand;
+import com.bukkit.WinSock.Protected.Listener.ProtectedBlockListener;
+import com.bukkit.WinSock.Protected.Listener.ProtectedPlayerListener;
+import com.bukkit.WinSock.Protected.Objects.Door;
 import com.elmakers.mine.bukkit.plugins.persistence.Persistence;
 import com.elmakers.mine.bukkit.plugins.persistence.PersistencePlugin;
 import com.elmakers.mine.bukkit.plugins.persistence.PluginUtilities;
@@ -33,18 +36,20 @@ import com.nijikokun.bukkit.Permissions.Permissions;
  * 
  * @author WinSock
  */
-public class ProtectedDoors extends JavaPlugin {
+public class ProtectedPlugin extends JavaPlugin {
 	public static Logger log;
 	public static PermissionHandler Permissions = null;
 
-	private final DoorBlockListener blockListener = new DoorBlockListener(this);
-	private final DoorPlayerListener playerListener = new DoorPlayerListener(
+	private final ProtectedBlockListener blockListener = new ProtectedBlockListener(
+			this);
+	private final ProtectedPlayerListener playerListener = new ProtectedPlayerListener(
 			this);
 	private final HashMap<Player, Boolean> debugees = new HashMap<Player, Boolean>();
 	public Door doorHandler = null;
+	public final Protected protectedHandler = new Protected(this);
 	private PluginUtilities putils = null;
 	private PluginDescriptionFile pdfFile = this.getDescription();
-	
+
 	private PluginCommand pDoorsCommand = null;
 	private PluginCommand pDoorsCreate = null;
 	private PluginCommand pDoorsAddUser = null;
@@ -60,7 +65,7 @@ public class ProtectedDoors extends JavaPlugin {
 
 	public boolean useiPermissions = false;
 
-	public ProtectedDoors(PluginLoader pluginLoader, Server instance,
+	public ProtectedPlugin(PluginLoader pluginLoader, Server instance,
 			PluginDescriptionFile desc, File folder, File plugin,
 			ClassLoader cLoader) {
 		super(pluginLoader, instance, desc, folder, plugin, cLoader);
@@ -111,8 +116,8 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 		if (args.length > 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.ADDG, args);
-			doorHandler.addCommand(data);
+			ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.ADDG, args);
+			protectedHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.3"));
 		} else {
 			pDoorsAddGroup.sendHelp(sender, "", true, false);
@@ -128,8 +133,8 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 		if (args.length > 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.ADD, args);
-			doorHandler.addCommand(data);
+			ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.ADD, args);
+			protectedHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.4"));
 		} else {
 			pDoorsAddUser.sendHelp(sender, "", true, false);
@@ -151,10 +156,10 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 
-		DoorCmd data = new DoorCmd(p, DoorCommand.CREATE, args);
-		doorHandler.addCommand(data);
+		ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.CREATE, args);
+		protectedHandler.addCommand(data);
 		p.sendMessage(Messages.getString("ProtectedDoors.5"));
-		
+
 		return true;
 
 	}
@@ -167,8 +172,9 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 		if (args.length == 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.DELETE, args);
-			doorHandler.addCommand(data);
+			ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.DELETE,
+					args);
+			protectedHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.6"));
 		} else {
 			pDoorsDeleteProtection.sendHelp(sender, "", true, false);
@@ -203,7 +209,7 @@ public class ProtectedDoors extends JavaPlugin {
 			this.getServer().getPluginManager().disablePlugin(this);
 		}
 
-		doorHandler = new Door(this);
+		doorHandler = new Door();
 
 		if (checkiConomy()) {
 			log.info(pdfFile.getName()
@@ -213,7 +219,7 @@ public class ProtectedDoors extends JavaPlugin {
 		if (checkPermissions()) {
 			log.info(pdfFile.getName()
 					+ Messages.getString("ProtectedDoors.13"));
-			ProtectedDoors.Permissions = ((Permissions) this.getServer()
+			ProtectedPlugin.Permissions = ((Permissions) this.getServer()
 					.getPluginManager()
 					.getPlugin(Messages.getString("ProtectedDoors.2")))
 					.getHandler();
@@ -256,9 +262,8 @@ public class ProtectedDoors extends JavaPlugin {
 				PermissionType.ALLOW_ALL);
 		pDoorsAddGroup.bind("onAddGroup");
 
-		pDoorsDeleteProtection = pDoorsCommand.getSubCommand(
-				"delete", "Remove door protection", "delete",
-				PermissionType.ALLOW_ALL);
+		pDoorsDeleteProtection = pDoorsCommand.getSubCommand("delete",
+				"Remove door protection", "delete", PermissionType.ALLOW_ALL);
 		pDoorsDeleteProtection.bind("onDelete");
 
 		pDoorsRemoveUser = pDoorsCommand.getSubCommand("removeu",
@@ -267,14 +272,14 @@ public class ProtectedDoors extends JavaPlugin {
 				PermissionType.ALLOW_ALL);
 		pDoorsRemoveUser.bind("onRemoveUser");
 
-		pDoorsRemoveGroup = pDoorsCommand.getSubCommand(
-				"removeg", "Remove groups from allowed list",
+		pDoorsRemoveGroup = pDoorsCommand.getSubCommand("removeg",
+				"Remove groups from allowed list",
 				"removeg <List of groups seperated by space>",
 				PermissionType.ALLOW_ALL);
 		pDoorsRemoveGroup.bind("onRemoveGroup");
 
-		pDoorsInfo = pDoorsCommand.getSubCommand("info",
-				"Get info on a door", "info", PermissionType.ALLOW_ALL);
+		pDoorsInfo = pDoorsCommand.getSubCommand("info", "Get info on a door",
+				"info", PermissionType.ALLOW_ALL);
 		pDoorsInfo.bind("onInfo");
 
 		// EXAMPLE: Custom code, here we just output some info so we can check
@@ -291,8 +296,8 @@ public class ProtectedDoors extends JavaPlugin {
 		} else {
 			p = (Player) sender;
 		}
-		DoorCmd data = new DoorCmd(p, DoorCommand.INFO, args);
-		doorHandler.addCommand(data);
+		ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.INFO, args);
+		protectedHandler.addCommand(data);
 		p.sendMessage("Right click a door to get its info!");
 		return true;
 	}
@@ -315,8 +320,9 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 		if (args.length > 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.REMOVEG, args);
-			doorHandler.addCommand(data);
+			ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.REMOVEG,
+					args);
+			protectedHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.45"));
 		} else {
 			pDoorsRemoveGroup.sendHelp(sender, "", true, false);
@@ -332,8 +338,9 @@ public class ProtectedDoors extends JavaPlugin {
 			p = (Player) sender;
 		}
 		if (args.length > 0) {
-			DoorCmd data = new DoorCmd(p, DoorCommand.REMOVE, args);
-			doorHandler.addCommand(data);
+			ProtectedCmd data = new ProtectedCmd(p, ProtectedCommand.REMOVE,
+					args);
+			protectedHandler.addCommand(data);
 			p.sendMessage(Messages.getString("ProtectedDoors.46")); //$NON-NLS-1$
 		} else {
 			pDoorsRemoveUser.sendHelp(sender, "", true, false);

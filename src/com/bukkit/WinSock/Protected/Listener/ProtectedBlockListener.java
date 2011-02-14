@@ -1,4 +1,4 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected.Listener;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,44 +20,22 @@ import org.bukkit.event.block.BlockPlaceEvent;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-import com.nijikokun.bukkit.iConomy.iConomy;
+import com.bukkit.WinSock.Protected.ProtectedCmd;
+import com.bukkit.WinSock.Protected.ProtectedLocation;
+import com.bukkit.WinSock.Protected.ProtectedObject;
+import com.bukkit.WinSock.Protected.Messages;
+import com.bukkit.WinSock.Protected.ProtectedPlugin;
 
 /**
  * ICSigns block listener
  * 
  * @author WinSock
  */
-public class DoorBlockListener extends BlockListener {
-	private final ProtectedDoors plugin;
+public class ProtectedBlockListener extends BlockListener {
+	private final ProtectedPlugin plugin;
 
-	public DoorBlockListener(final ProtectedDoors plugin) {
+	public ProtectedBlockListener(final ProtectedPlugin plugin) {
 		this.plugin = plugin;
-	}
-
-	private Boolean checkCost(Player player, Sign sign, DoorObject obj) {
-		if (sign.getLine(1).equalsIgnoreCase("Cost:")) {
-			int cost = 0;
-			try {
-				cost = Integer.parseInt(sign.getLine(2).trim());
-				int playerMoney = iConomy.db.get_balance(player
-						.getDisplayName());
-				int ownerMoney = iConomy.db.get_balance(obj.getCreator());
-				if (playerMoney >= cost) {
-					iConomy.db.set_balance(player.getDisplayName(), playerMoney
-							- cost);
-					iConomy.db.set_balance(obj.getCreator(), ownerMoney + cost);
-					return true;
-				} else {
-					return false;
-				}
-			} catch (Exception e) {
-				// invaid cost
-				return false;
-			}
-		}
-		System.out.println("No cost!");
-		// No cost
-		return false;
 	}
 
 	@Override
@@ -76,56 +54,18 @@ public class DoorBlockListener extends BlockListener {
 							blockBlock.getY(), blockBlock.getZ());
 				}
 
-				String loc = Messages.getString("DoorBlockListener.3");
-				loc += String.valueOf(DoorBlock.getX())
-						+ Messages.getString("DoorBlockListener.2");
-				loc += String.valueOf(DoorBlock.getY())
-						+ Messages.getString("DoorBlockListener.2");
-				loc += String.valueOf(DoorBlock.getZ());
-				DoorObject DoorObj = plugin.doorHandler.getDoorObject(loc);
+				ProtectedLocation loc = new ProtectedLocation(DoorBlock.getLocation());
+				ProtectedObject pObj = plugin.protectedHandler.getObject(loc);
 
-				if (DoorObj != null) {
-					if (DoorObj.canRemove(player, plugin)) {
+				if (pObj != null) {
+					if (pObj.canRemove(player, plugin)) {
 						canKill = true;
-						plugin.doorHandler.remove(DoorObj);
-						plugin.doorHandler.save();
+						plugin.protectedHandler.remove(pObj);
+						plugin.protectedHandler.save();
 					}
-				}
-				else
-				{
-					// Other door first check for old style doors
-					Block aboveBlock = blockWorld.getBlockAt(DoorBlock.getX(), 
-							DoorBlock.getY() + 1, DoorBlock.getZ());
-					Sign sign = plugin.doorHandler.getSign(aboveBlock);
-					if (sign != null)
-					{
-						if (!sign.getLine(1).equalsIgnoreCase("Cost:"))
-						{
-							for (int i = 0; i < sign.getLines().length; i++)
-							{
-								// Loop though the lines
-								if (sign.getLine(i).contains(event.getPlayer().getDisplayName()))
-								{
-									// Player on one of the lines allow access
-									canKill = true;
-								}
-								else
-								{
-									canKill = false;
-								}
-							}
-						}
-						else
-						{
-							// Cost but door isn't registered yet.
-							canKill = true;
-						}
-					}
-					else
-					{
-						// Not a protected door
-						canKill = true;
-					}
+				} else {
+					// Not a protected door
+					canKill = true;
 				}
 			} else {
 				// Other Block
@@ -156,19 +96,14 @@ public class DoorBlockListener extends BlockListener {
 			Block aboveBlock = blockWorld.getBlockAt(DoorBlock.getX(),
 					DoorBlock.getY() + 1, DoorBlock.getZ());
 
-			String loc = Messages.getString("DoorBlockListener.3");
-			loc += String.valueOf(DoorBlock.getX())
-					+ Messages.getString("DoorBlockListener.2");
-			loc += String.valueOf(DoorBlock.getY())
-					+ Messages.getString("DoorBlockListener.2");
-			loc += String.valueOf(DoorBlock.getZ());
-			DoorObject DoorObj = plugin.doorHandler.getDoorObject(loc);
+			ProtectedLocation loc = new ProtectedLocation(DoorBlock.getLocation());
+			ProtectedObject pObj = plugin.protectedHandler.getObject(loc);
 
-			if (DoorObj != null) {
+			if (pObj != null) {
 				if (trigger instanceof Player) {
 					player = (Player) trigger;
 					boolean canOpen = false;
-					DoorCmd pendingCmd = plugin.doorHandler
+					ProtectedCmd pendingCmd = plugin.protectedHandler
 							.getPendingPlayerCommand(player);
 					if (pendingCmd != null) {
 						switch (pendingCmd.GetCommand()) {
@@ -177,13 +112,13 @@ public class DoorBlockListener extends BlockListener {
 									.getString("DoorBlockListener.7")); //$NON-NLS-1$
 							break;
 						case ADD:
-							if (DoorObj.canModify(player, plugin)) //$NON-NLS-1$
+							if (pObj.canModify(player, plugin)) //$NON-NLS-1$
 							{
 								List<String> temp = new ArrayList<String>(
 										Arrays.asList(pendingCmd.GetArgs()));
-								DoorObj.addUsers(temp);
-								plugin.doorHandler.saveDoorObject(DoorObj);
-								plugin.doorHandler.save();
+								pObj.addUsers(temp);
+								plugin.protectedHandler.saveObject(pObj);
+								plugin.protectedHandler.save();
 								player.sendMessage(Messages
 										.getString("DoorBlockListener.9")); //$NON-NLS-1$
 							} else {
@@ -192,13 +127,13 @@ public class DoorBlockListener extends BlockListener {
 							}
 							break;
 						case ADDG:
-							if (DoorObj.canModify(player, plugin)) //$NON-NLS-1$
+							if (pObj.canModify(player, plugin)) //$NON-NLS-1$
 							{
 								List<String> temp = new ArrayList<String>(
 										Arrays.asList(pendingCmd.GetArgs()));
-								DoorObj.addGroups(temp);
-								plugin.doorHandler.saveDoorObject(DoorObj);
-								plugin.doorHandler.save();
+								pObj.addGroups(temp);
+								plugin.protectedHandler.saveObject(pObj);
+								plugin.protectedHandler.save();
 								player.sendMessage(Messages
 										.getString("DoorBlockListener.12")); //$NON-NLS-1$
 							} else {
@@ -207,13 +142,13 @@ public class DoorBlockListener extends BlockListener {
 							}
 							break;
 						case REMOVE:
-							if (DoorObj.canModify(player, plugin)) //$NON-NLS-1$
+							if (pObj.canModify(player, plugin)) //$NON-NLS-1$
 							{
 								List<String> temp = new ArrayList<String>(
 										Arrays.asList(pendingCmd.GetArgs()));
-								DoorObj.removeUsers(temp);
-								plugin.doorHandler.saveDoorObject(DoorObj);
-								plugin.doorHandler.save();
+								pObj.removeUsers(temp);
+								plugin.protectedHandler.saveObject(pObj);
+								plugin.protectedHandler.save();
 								player.sendMessage(Messages
 										.getString("DoorBlockListener.15")); //$NON-NLS-1$
 							} else {
@@ -222,13 +157,13 @@ public class DoorBlockListener extends BlockListener {
 							}
 							break;
 						case REMOVEG:
-							if (DoorObj.canModify(player, plugin)) //$NON-NLS-1$
+							if (pObj.canModify(player, plugin)) //$NON-NLS-1$
 							{
 								List<String> temp = new ArrayList<String>(
 										Arrays.asList(pendingCmd.GetArgs()));
-								DoorObj.removeGroups(temp);
-								plugin.doorHandler.saveDoorObject(DoorObj);
-								plugin.doorHandler.save();
+								pObj.removeGroups(temp);
+								plugin.protectedHandler.saveObject(pObj);
+								plugin.protectedHandler.save();
 								player.sendMessage(Messages
 										.getString("DoorBlockListener.18")); //$NON-NLS-1$
 							} else {
@@ -237,10 +172,10 @@ public class DoorBlockListener extends BlockListener {
 							}
 							break;
 						case DELETE:
-							if (DoorObj.canRemove(player, plugin)) //$NON-NLS-1$
+							if (pObj.canRemove(player, plugin)) //$NON-NLS-1$
 							{
-								plugin.doorHandler.remove(DoorObj);
-								plugin.doorHandler.save();
+								plugin.protectedHandler.remove(pObj);
+								plugin.protectedHandler.save();
 								player.sendMessage(Messages
 										.getString("DoorBlockListener.21")); //$NON-NLS-1$
 							} else {
@@ -250,19 +185,18 @@ public class DoorBlockListener extends BlockListener {
 							break;
 						case INFO:
 							player.sendMessage("Can open: "
-									+ DoorObj.canOpen(player, plugin));
-							player.sendMessage("Creator: "
-									+ DoorObj.getCreator());
+									+ pObj.canOpen(player, plugin));
+							player.sendMessage("Creator: " + pObj.getCreator());
 							player.sendMessage("Users: "
-									+ DoorObj.getUsersString());
+									+ pObj.getUsersString());
 							player.sendMessage("Groups: "
-									+ DoorObj.getGroupsString());
+									+ pObj.getGroupsString());
 							break;
 						}
-						plugin.doorHandler.removePendingPlayerCommand();
+						plugin.protectedHandler.removePendingPlayerCommand();
 						event.setCancelled(true);
 					} else {
-						if (DoorObj.canOpen(player, plugin)) //$NON-NLS-1$
+						if (pObj.canOpen(player, plugin)) //$NON-NLS-1$
 						{
 							canOpen = true;
 							return;
@@ -273,7 +207,8 @@ public class DoorBlockListener extends BlockListener {
 										.getSign(aboveBlock);
 
 								if (sign != null) {
-									if (checkCost(player, sign, DoorObj)) {
+									if (plugin.doorHandler.checkCost(player,
+											sign, pObj)) {
 										return;
 									} else {
 										event.setCancelled(true);
@@ -292,69 +227,42 @@ public class DoorBlockListener extends BlockListener {
 			} else {
 				if (trigger instanceof Player) {
 					player = (Player) trigger;
-					Sign sign = plugin.doorHandler.getSign(aboveBlock);
-					if (sign != null) {
-						// Old style sign
-						boolean canOpen = false;
-						for (int i = 0; i < sign.getLines().length; i++) {
-							if (!sign.getLine(1).equalsIgnoreCase("Cost:")) {
-								if (plugin.useiPermissions) {
-									// Loop though the lines
-									if (sign.getLine(i).equalsIgnoreCase(
-											player.getDisplayName())
-											|| ProtectedDoors.Permissions.has(
-													player, "pdoors.mod")) {
-										canOpen = true;
-									}
-								} else {
-									// Loop though the lines
-									if (sign.getLine(i).equalsIgnoreCase(
-											player.getDisplayName())
-											|| plugin.readOP().contains(player)) {
-										canOpen = true;
-									}
-								}
-							}
-						}
-						plugin.doorHandler.removePendingPlayerCommand();
-						event.setCancelled(!canOpen);
-					} else {
-						boolean canCreate = false;
-						if (plugin.useiPermissions) {
-							if (ProtectedDoors.Permissions.has(player,
-									"pdoors.main")) {
-								canCreate = true;
-							}
-						} else {
+					boolean canCreate = false;
+					if (plugin.useiPermissions) {
+						if (ProtectedPlugin.Permissions.has(player,
+								"pdoors.main")) {
 							canCreate = true;
 						}
+					} else {
+						canCreate = true;
+					}
 
-						if (canCreate) {
-							DoorCmd pendingCmd = plugin.doorHandler
-									.getPendingPlayerCommand(player);
-							if (pendingCmd != null) {
-								switch (pendingCmd.GetCommand()) {
-								case CREATE:
-									DoorObject temp = new DoorObject();
-									temp.setCreator(player.getDisplayName());
-									temp.setLocation(loc);
-									if (plugin.doorHandler.getDoorObject(loc) == null) {
-										plugin.doorHandler.saveDoorObject(temp);
-										plugin.doorHandler.save();
-										player.sendMessage(Messages
-												.getString("DoorBlockListener.28")); //$NON-NLS-1$
-									} else {
-										player.sendMessage(Messages
-												.getString("DoorBlockListener.29")); //$NON-NLS-1$
-									}
-									break;
-								case INFO:
-									player.sendMessage("Unprotected Door!");
-									break;
+					if (canCreate) {
+						ProtectedCmd pendingCmd = plugin.protectedHandler
+								.getPendingPlayerCommand(player);
+						if (pendingCmd != null) {
+							switch (pendingCmd.GetCommand()) {
+							case CREATE:
+								ProtectedObject temp = new ProtectedObject();
+								temp.setCreator(player.getDisplayName());
+								temp.setLocation(loc);
+								if (plugin.protectedHandler.getObject(loc) == null) {
+									plugin.protectedHandler.saveObject(temp);
+									plugin.protectedHandler.save();
+									player.sendMessage(Messages
+											.getString("DoorBlockListener.28")); //$NON-NLS-1$
+								} else {
+									player.sendMessage(Messages
+											.getString("DoorBlockListener.29")); //$NON-NLS-1$
 								}
-								plugin.doorHandler.removePendingPlayerCommand();
-								event.setCancelled(true);
+								break;
+							case INFO:
+								player.sendMessage("Unprotected Door!");
+								break;
 							}
+							plugin.protectedHandler
+									.removePendingPlayerCommand();
+							event.setCancelled(true);
 						}
 					}
 				}
@@ -375,8 +283,8 @@ public class DoorBlockListener extends BlockListener {
 				|| eventBlock.getType().equals(Material.STONE_PLATE)
 				|| eventBlock.getType().equals(Material.STONE_BUTTON)
 				|| eventBlock.getType().equals(Material.LEVER)) {
-			List<DoorObject> doorObjects = new ArrayList<DoorObject>();
-			plugin.persistence.getAll(doorObjects, DoorObject.class);
+			List<ProtectedObject> doorObjects = new ArrayList<ProtectedObject>();
+			plugin.persistence.getAll(doorObjects, ProtectedObject.class);
 
 			if (doorObjects.size() > 0) {
 				BlockVector min = new BlockVector();
@@ -388,26 +296,25 @@ public class DoorBlockListener extends BlockListener {
 				max.setZ(onBlock.getZ() + 1);
 				max.setY(onBlock.getY() + 2);
 
-				for (DoorObject obj : doorObjects) {
-					String loc = obj.getLocation();
-					String[] locd = loc.split(Messages
-							.getString("DoorBlockListener.2")); //$NON-NLS-1$
-					Vector pt = new Vector();
-					pt.setX(Integer.parseInt(locd[0]));
-					pt.setY(Integer.parseInt(locd[1]));
-					pt.setZ(Integer.parseInt(locd[2]));
+				for (ProtectedObject obj : doorObjects) {
+					ProtectedLocation loc = obj.getLocation();
+					if (loc.getWorldData().getWorld(plugin.getServer()).equals(eventBlock.getWorld())) {
+						Vector pt = new Vector();
+						pt = loc.toVector();
 
-					int x = pt.getBlockX();
-					int y = pt.getBlockY();
-					int z = pt.getBlockZ();
-					if (x >= min.getBlockX() && x <= max.getBlockX()
-							&& y >= min.getBlockY() && y <= max.getBlockY()
-							&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
-						ProtectedDoors.log
-								.info("Player: "
-										+ event.getPlayer().getDisplayName()
-										+ ", Tried to place a redstone object by a protected door!");
-						event.setCancelled(true);
+						int x = pt.getBlockX();
+						int y = pt.getBlockY();
+						int z = pt.getBlockZ();
+						if (x >= min.getBlockX() && x <= max.getBlockX()
+								&& y >= min.getBlockY() && y <= max.getBlockY()
+								&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
+							ProtectedPlugin.log
+									.info("Player: "
+											+ event.getPlayer()
+													.getDisplayName()
+											+ ", Tried to place a redstone object by a protected door!");
+							event.setCancelled(true);
+						}
 					}
 				}
 			} else {
@@ -441,7 +348,7 @@ public class DoorBlockListener extends BlockListener {
 					Sign sign = plugin.doorHandler.getSign(doorBlock);
 					if (sign != null) {
 						if (!sign.getLine(1).equalsIgnoreCase("Cost:")) {
-							ProtectedDoors.log
+							ProtectedPlugin.log
 									.info("Player: "
 											+ event.getPlayer()
 													.getDisplayName()
@@ -457,8 +364,8 @@ public class DoorBlockListener extends BlockListener {
 	@Override
 	public void onBlockRedstoneChange(BlockRedstoneEvent event) {
 		Block block = event.getBlock();
-		List<DoorObject> doorObjects = new ArrayList<DoorObject>();
-		plugin.persistence.getAll(doorObjects, DoorObject.class);
+		List<ProtectedObject> doorObjects = new ArrayList<ProtectedObject>();
+		plugin.persistence.getAll(doorObjects, ProtectedObject.class);
 
 		if (doorObjects.size() > 0) {
 			BlockVector min = new BlockVector();
@@ -470,24 +377,22 @@ public class DoorBlockListener extends BlockListener {
 			max.setZ(block.getZ() + 1);
 			max.setY(block.getY() + 2);
 
-			for (DoorObject obj : doorObjects) {
-				String loc = obj.getLocation();
-				String[] locd = loc.split(Messages
-						.getString("DoorBlockListener.2")); //$NON-NLS-1$
-				Vector pt = new Vector();
-				pt.setX(Integer.parseInt(locd[0]));
-				pt.setY(Integer.parseInt(locd[1]));
-				pt.setZ(Integer.parseInt(locd[2]));
+			for (ProtectedObject obj : doorObjects) {
+				ProtectedLocation loc = obj.getLocation();
+				if (loc.getWorldData().getWorld(plugin.getServer()).equals(block.getWorld())) {
+					Vector pt = new Vector();
+					pt = loc.toVector();
 
-				int x = pt.getBlockX();
-				int y = pt.getBlockY();
-				int z = pt.getBlockZ();
-				if (x >= min.getBlockX() && x <= max.getBlockX()
-						&& y >= min.getBlockY() && y <= max.getBlockY()
-						&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
-					ProtectedDoors.log
-							.info("Redstone change by protected door, removed the redstone!");
-					block.setType(Material.AIR);
+					int x = pt.getBlockX();
+					int y = pt.getBlockY();
+					int z = pt.getBlockZ();
+					if (x >= min.getBlockX() && x <= max.getBlockX()
+							&& y >= min.getBlockY() && y <= max.getBlockY()
+							&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
+						ProtectedPlugin.log
+								.info("Redstone change by protected door, removed the redstone!");
+						block.setType(Material.AIR);
+					}
 				}
 			}
 		} else {
@@ -521,7 +426,7 @@ public class DoorBlockListener extends BlockListener {
 				Sign sign = plugin.doorHandler.getSign(doorBlock);
 				if (sign != null) {
 					if (!sign.getLine(1).equalsIgnoreCase("Cost:")) {
-						ProtectedDoors.log
+						ProtectedPlugin.log
 								.info("Redstone change by protected door, removed the redstone!");
 						block.setType(Material.AIR);
 					}

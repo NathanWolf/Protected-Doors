@@ -1,17 +1,21 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected;
 
 import org.bukkit.entity.Player;
 
-public class DoorCmd {
-	public enum DoorCommand {
+public class ProtectedCmd {
+	public enum ProtectedCommand {
 		ADD, ADDG, CREATE, DELETE, REMOVE, REMOVEG, INFO
 	}
 
+	public enum ProtectedType {
+		Door, Chest, Sign, Cuboid
+	}
+
 	private String[] args;
-	private DoorCommand command;
+	private ProtectedCommand command;
 	private Player player;
 
-	DoorCmd(Player player, DoorCommand command, String[] args) {
+	ProtectedCmd(Player player, ProtectedCommand command, String[] args) {
 		this.player = player;
 		this.command = command;
 		this.args = args;
@@ -21,7 +25,7 @@ public class DoorCmd {
 		return args;
 	}
 
-	public DoorCommand GetCommand() {
+	public ProtectedCommand GetCommand() {
 		return command;
 	}
 

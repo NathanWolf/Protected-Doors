@@ -1,4 +1,4 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected;
 
 import java.util.List;
 
@@ -7,16 +7,18 @@ import org.bukkit.entity.Player;
 import com.elmakers.mine.bukkit.plugins.persistence.annotation.PersistClass;
 import com.elmakers.mine.bukkit.plugins.persistence.annotation.PersistField;
 
-@PersistClass(name = "DoorObject", schema = "ProtectedDoors")
-public class DoorObject {
+@PersistClass(name = "Object", schema = "Protected")
+public class ProtectedObject {
 
 	private List<String> groups = null;
 
-	private String loc = "";
+	private ProtectedLocation loc = null;
 
 	private List<String> users = null;
 
 	private String creator = "";
+	
+	private int cost = 0;
 
 	@PersistField(contained = true)
 	public List<String> getGroups() {
@@ -33,13 +35,24 @@ public class DoorObject {
 	}
 
 	@PersistField(id = true)
-	public String getLocation() {
+	public ProtectedLocation getLocation() {
 		return loc;
 	}
 
 	@PersistField(contained = true)
 	public List<String> getUsers() {
 		return users;
+	}
+	
+	@PersistField
+	public int getCost()
+	{
+		return this.cost;
+	}
+	
+	public void setCost(int cost)
+	{
+		this.cost = cost;
 	}
 
 	public void setGroups(List<String> groups) {
@@ -60,7 +73,7 @@ public class DoorObject {
 		}
 	}
 
-	public void setLocation(String loc) {
+	public void setLocation(ProtectedLocation loc) {
 		this.loc = loc;
 	}
 
@@ -82,7 +95,7 @@ public class DoorObject {
 		}
 	}
 
-	public boolean canOpen(Player player, ProtectedDoors plugin) {
+	public boolean canOpen(Player player, ProtectedPlugin plugin) {
 		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
 		}
@@ -92,11 +105,11 @@ public class DoorObject {
 			}
 		}
 		if (plugin.useiPermissions) {
-			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {
+			if (ProtectedPlugin.Permissions.has(player, "pdoors.mod")) {
 				return true;
 			}
 			if (this.groups != null) {
-				if (this.groups.contains(ProtectedDoors.Permissions
+				if (this.groups.contains(ProtectedPlugin.Permissions
 						.getGroup(player.getDisplayName()))) {
 					return true;
 				}
@@ -109,12 +122,12 @@ public class DoorObject {
 		return false;
 	}
 
-	public boolean canRemove(Player player, ProtectedDoors plugin) {
+	public boolean canRemove(Player player, ProtectedPlugin plugin) {
 		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
 		}
 		if (plugin.useiPermissions) {
-			if (ProtectedDoors.Permissions.has(player, "pdoors.admin")) {
+			if (ProtectedPlugin.Permissions.has(player, "pdoors.admin")) {
 				return true;
 			}
 		} else {
@@ -125,12 +138,12 @@ public class DoorObject {
 		return false;
 	}
 
-	public boolean canModify(Player player, ProtectedDoors plugin) {
+	public boolean canModify(Player player, ProtectedPlugin plugin) {
 		if (this.creator.equalsIgnoreCase(player.getDisplayName())) {
 			return true;
 		}
 		if (plugin.useiPermissions) {
-			if (ProtectedDoors.Permissions.has(player, "pdoors.mod")) {
+			if (ProtectedPlugin.Permissions.has(player, "pdoors.mod")) {
 				return true;
 			}
 		} else {

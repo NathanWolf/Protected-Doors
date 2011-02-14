@@ -1,4 +1,4 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected.Listener;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -13,10 +13,14 @@ import org.bukkit.event.player.PlayerListener;
 import org.bukkit.util.BlockVector;
 import org.bukkit.util.Vector;
 
-public class DoorPlayerListener extends PlayerListener {
-	private final ProtectedDoors plugin;
+import com.bukkit.WinSock.Protected.ProtectedLocation;
+import com.bukkit.WinSock.Protected.ProtectedObject;
+import com.bukkit.WinSock.Protected.ProtectedPlugin;
 
-	public DoorPlayerListener(final ProtectedDoors plugin) {
+public class ProtectedPlayerListener extends PlayerListener {
+	private final ProtectedPlugin plugin;
+
+	public ProtectedPlayerListener(final ProtectedPlugin plugin) {
 		this.plugin = plugin;
 	}
 
@@ -24,8 +28,8 @@ public class DoorPlayerListener extends PlayerListener {
 	public void onPlayerItem(PlayerItemEvent event) {
 		if (event.getItem().getType().equals(Material.REDSTONE)) {
 			Block block = event.getBlockClicked();
-			List<DoorObject> doorObjects = new ArrayList<DoorObject>();
-			plugin.persistence.getAll(doorObjects, DoorObject.class);
+			List<ProtectedObject> doorObjects = new ArrayList<ProtectedObject>();
+			plugin.persistence.getAll(doorObjects, ProtectedObject.class);
 
 			if (doorObjects.size() > 0) {
 				BlockVector min = new BlockVector();
@@ -37,25 +41,23 @@ public class DoorPlayerListener extends PlayerListener {
 				max.setZ(block.getZ() + 1);
 				max.setY(block.getY() + 2);
 
-				for (DoorObject obj : doorObjects) {
-					String loc = obj.getLocation();
-					String[] locd = loc.split(Messages
-							.getString("DoorBlockListener.2")); //$NON-NLS-1$
-					Vector pt = new Vector();
-					pt.setX(Integer.parseInt(locd[0]));
-					pt.setY(Integer.parseInt(locd[1]));
-					pt.setZ(Integer.parseInt(locd[2]));
+				for (ProtectedObject obj : doorObjects) {
+					ProtectedLocation loc = obj.getLocation();
+					if (loc.getWorldData().getWorld(plugin.getServer()).equals(block.getWorld())) {
+						Vector pt = new Vector();
+						pt = loc.toVector();
 
-					int x = pt.getBlockX();
-					int y = pt.getBlockY();
-					int z = pt.getBlockZ();
-					if (x >= min.getBlockX() && x <= max.getBlockX()
-							&& y >= min.getBlockY() && y <= max.getBlockY()
-							&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
-						ProtectedDoors.log.info("Player: "
-								+ event.getPlayer().getDisplayName()
-								+ ", tried to place redstone!");
-						event.setCancelled(true);
+						int x = pt.getBlockX();
+						int y = pt.getBlockY();
+						int z = pt.getBlockZ();
+						if (x >= min.getBlockX() && x <= max.getBlockX()
+								&& y >= min.getBlockY() && y <= max.getBlockY()
+								&& z >= min.getBlockZ() && z <= max.getBlockZ()) {
+							ProtectedPlugin.log.info("Player: "
+									+ event.getPlayer().getDisplayName()
+									+ ", tried to place redstone!");
+							event.setCancelled(true);
+						}
 					}
 				}
 			} else {
@@ -89,7 +91,7 @@ public class DoorPlayerListener extends PlayerListener {
 					Sign sign = plugin.doorHandler.getSign(doorBlock);
 					if (sign != null) {
 						if (!sign.getLine(1).equalsIgnoreCase("Cost:")) {
-							ProtectedDoors.log.info("Player: "
+							ProtectedPlugin.log.info("Player: "
 									+ event.getPlayer().getDisplayName()
 									+ ", tried to place redstone!");
 							event.setCancelled(true);

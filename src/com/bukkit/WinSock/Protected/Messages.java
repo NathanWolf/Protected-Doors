@@ -1,10 +1,10 @@
-package com.bukkit.WinSock.ProtectedDoors;
+package com.bukkit.WinSock.Protected;
 
 import java.util.MissingResourceException;
 import java.util.ResourceBundle;
 
 public class Messages {
-	private static final String BUNDLE_NAME = "com.bukkit.WinSock.ProtectedDoors.messages"; //$NON-NLS-1$
+	private static final String BUNDLE_NAME = "com.bukkit.WinSock.Protected.messages"; //$NON-NLS-1$
 
 	private static final ResourceBundle RESOURCE_BUNDLE = ResourceBundle
 			.getBundle(BUNDLE_NAME);
