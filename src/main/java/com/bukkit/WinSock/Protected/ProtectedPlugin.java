@@ -32,7 +32,7 @@ import com.nijiko.permissions.PermissionHandler;
 import com.nijikokun.bukkit.Permissions.Permissions;
 
 /**
- * ICSings for Bukkit
+ * Protected for Bukkit
  * 
  * @author WinSock
  */
