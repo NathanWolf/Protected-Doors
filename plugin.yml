@@ -1,0 +1,7 @@
+name: Protected
+main: com.bukkit.WinSock.Protected.ProtectedPlugin
+version: 0.2.0
+commands:
+  protect:
+    description: Protected Doors Main Command
+    usage: /<command>

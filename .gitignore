@@ -1,0 +1,13 @@
+# Windows image file caches
+Thumbs.db 
+
+# Folder config file
+Desktop.ini
+
+# Eclipse
+.settings
+.metadata
+Servers
+bin
+target
+*.jar

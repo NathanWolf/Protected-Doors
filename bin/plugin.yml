@@ -1,7 +1,0 @@
-name: ProtectedDoors
-main: com.bukkit.WinSock.ProtectedDoors.ProtectedDoors
-version: 0.1.5
-commands:
-  pdoor:
-    description: Protected Doors Main Command
-    usage: /<command>
